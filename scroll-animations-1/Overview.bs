@@ -603,9 +603,8 @@ the names are fully case-sensitive; two names are equal only if they are
 codepoint-by-codepoint equal. The <<custom-ident>> additionally excludes the
 none keyword.
 
-
-The <<declaration-list>> inside of ''@scroll-timeline'' rule can only contain the
-descriptors defined in this section.
+Unknown descriptors are invalid and ignored, but do not invalidate the
+''@scroll-timeline'' rule.
 
 ### Scroll Timeline descriptors ### {#scroll-timeline-descriptors}
 
