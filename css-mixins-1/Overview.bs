@@ -24,13 +24,13 @@ spec:css-values-4; type:dfn; text:identifier;
 
 <!-- Big Text: intro
 
-████ █    █▌ █████▌ ████▌   ███▌
+████ █    █▌ █████▌ ████▌   ███▌ 
  ▐▌  █▌   █▌   █▌   █▌  █▌ █▌  █▌
  ▐▌  ██▌  █▌   █▌   █▌  █▌ █▌  █▌
  ▐▌  █▌▐█ █▌   █▌   ████▌  █▌  █▌
  ▐▌  █▌  ██▌   █▌   █▌▐█   █▌  █▌
  ▐▌  █▌   █▌   █▌   █▌ ▐█  █▌  █▌
-████ █▌   ▐▌   █▌   █▌  █▌  ███▌
+████ █▌   ▐▌   █▌   █▌  █▌  ███▌ 
 -->
 
 Introduction {#intro}
@@ -192,13 +192,13 @@ during the [=substitute a dashed function|substitution=] of a <<dashed-function>
 
 <!-- Big Text: using
 
-█▌  █▌  ███▌  ████ █    █▌  ███▌
+█▌  █▌  ███▌  ████ █    █▌  ███▌ 
 █▌  █▌ █▌  █▌  ▐▌  █▌   █▌ █▌  █▌
-█▌  █▌ █▌      ▐▌  ██▌  █▌ █▌
+█▌  █▌ █▌      ▐▌  ██▌  █▌ █▌    
 █▌  █▌  ███▌   ▐▌  █▌▐█ █▌ █▌ ██▌
 █▌  █▌     █▌  ▐▌  █▌  ██▌ █▌  █▌
 █▌  █▌ █▌  █▌  ▐▌  █▌   █▌ █▌  █▌
- ███▌   ███▌  ████ █▌   ▐▌  ███▌
+ ███▌   ███▌  ████ █▌   ▐▌  ███▌ 
 -->
 
 Using Custom Functions {#using-custom-functions}
@@ -520,7 +520,6 @@ or acting as if nothing exists at that location otherwise.
 	</pre>
 </div>
 
-
 Interaction with @nest {#at-nest}
 ----------------------------
 
@@ -531,6 +530,206 @@ are allowed within the ''@nest'' rule.
 
 A ''@nest'' rule within ''@function'' does nothing:
 it acts like its contents were present at its location.
+
+<!-- Big Text: @mixin
+
+ ████▌  █     █ ████ █     █ ████ █    █▌
+█▌   █▌ ██   ██  ▐▌   █   █   ▐▌  █▌   █▌
+█▌▐█ █▌ █▌█ █▐█  ▐▌    █ █    ▐▌  ██▌  █▌
+█▌▐█ █▌ █▌ █ ▐█  ▐▌     █     ▐▌  █▌▐█ █▌
+█▌ ██▌  █▌   ▐█  ▐▌    █ █    ▐▌  █▌  ██▌
+█▌      █▌   ▐█  ▐▌   █   █   ▐▌  █▌   █▌
+ ████▌  █▌   ▐█ ████ █     █ ████ █▌   ▐▌
+-->
+
+Defining Mixins {#defining-mixins}
+==================================
+
+A [=mixin=] represents a reusable block of [=style rules=]
+and [=conditional group rule|conditionals=]
+that can be inserted into other [=style rules=].
+At its core, a mixin behaves similarly to a [=nested style rule|nested rule=]
+except that the nested rule is referenced by name
+instead of appearing directly within its parent rule.
+
+A <dfn>mixin</dfn> consists of a name (<<mixin-name>>),
+a list of [=mixin parameter|parameters=],
+a list of [=mixin dependency|dependencies=],
+and a body consisting of [=mixin variables=] and a ''@reutr
+
+A <dfn>mixin parameter</dfn> is analogous to a [=function parameter=],
+and a <dfn>mixin dependency</dfn> is analogous to a [=function dependency=],
+except that they appear in the prelude of a ''@mixin'' rule
+rather than the prelude of a ''@function'' rule.
+
+The <dfn>@mixin</dfn> Rule
+--------------------------
+
+<pre class="prod def" nohighlight>
+@mixin <<mixin-name>> [ ( <<parameter-list>> ) ]
+	[ using ( <<dependency-list>> ) ]?
+{
+	<<declaration-rule-list>>
+}
+
+<dfn><<mixin-name>></dfn> = <<dashed-ident>>
+</pre>
+
+The name of the resulting [=mixin=] is given by the <<mixin-name>>,
+the [=mixin parameters=] are optionally given by <<parameter-list>>.
+
+If more than one ''@mixin'' exists for a given name,
+then the rule in the stronger cascade layer wins,
+and rules defined later win within the same layer.
+
+The <<mixin-name>> of a ''@mixin'' rule is a [=tree-scoped name=].
+
+The body of a ''@mixin'' rule only accepts [=style rules=], 
+[=conditional group rules=], such as ''@media'', as well as the ''@nest'' rule.
+Additionally, it accepts the following descriptors:
+
+	* The ''@result'' rule,
+		which determines the contents
+		that will be replaced when the [=mixin=] is dereferenced
+		with the ''@apply'' rule.
+	* [=Custom properties=],
+		acting like [=mixed-in variable=] descriptors.
+
+Unknown descriptors are invalid and ignored,
+but do not make the ''@mixin'' rule itself invalid.
+
+The <dfn>@result</dfn> Rule
+---------------------------
+
+<pre class="prod def" nohighlight>
+@result {
+	<<declaration-rule-list>>
+}
+</pre>
+
+The ''@result'' rule represents the substitution contents of a [=mixin=].
+It only accepts the following in its body:
+
+	* [=Declarations=] that would be valid in a [=style rule=].
+	* [=Style rules=], which become [=nested style rules=].
+	* [=Conditional rules=], such as ''@media''.
+
+The ''@result'' rule is only valid <em>directly</em> within a ''@mixin'' rule.
+
+If multiple ''@result'' rules exist within the same ''@mixin'',
+then later rules replace earlier rules.
+
+<div class='example'>
+	The first ''@result'' rule in the following example
+	as no effect, since it's replaced by a later rule:
+
+	<pre class='lang-css'>
+	@mixin --red {
+	  @result {
+	    padding: 10px;
+	  }
+	  @result {
+	    color: red;
+	  }
+	}
+	</pre>
+</div>
+
+<!-- Big Text: @apply
+
+ ████▌   ███▌  ████▌  ████▌  █▌    █   ▐▌
+█▌   █▌ ▐█ ▐█  █▌  █▌ █▌  █▌ █▌    ▐▌  █ 
+█▌▐█ █▌ █▌  █▌ █▌  █▌ █▌  █▌ █▌     █ ▐▌ 
+█▌▐█ █▌ █▌  █▌ ████▌  ████▌  █▌     ▐▌█  
+█▌ ██▌  █████▌ █▌     █▌     █▌      █▌  
+█▌      █▌  █▌ █▌     █▌     █▌      █▌  
+ ████▌  █▌  █▌ █▌     █▌     █████   █▌  
+-->
+
+Using Mixins: The <dfn>@apply</dfn> Rule {#using-mixins}
+========================================================
+
+The result of a [=mixin=] may be substituted into another rule
+using the ''@apply'' rule. The syntax of ''@apply'' is:
+
+<pre class="prod def" nohighlight>
+@apply <<mixin-name>> [ ( <<declaration-value>># ) ]?
+</pre>
+
+The <<mixin-name>> determines which [=mixin=] to apply,
+and the optional list of <<declaration-value>>s determine
+the value assigned to the [=mixin=]'s [=mixin parameters|parameters=].
+
+<div class=note>
+Substitution functions like ''var()'', ''env()'', or ''attr()'',
+are invalid within the prelude of ''@apply''.
+</div>
+
+An ''@apply'' rule is valid within [=style rules=],
+as well as within ''@mixin''.
+
+<div class='example'>
+	<pre class='lang-css'>
+	@mixin --hover(--color) {
+	  &:hover {
+	    background-color: var(--color);
+	  }
+	}
+	.button {
+		@apply --hover(blue);
+	}
+	.item {
+		@apply --hover(green);
+	}
+	</pre>
+</div>
+
+Processing of ''@apply'' Rules {#processing}
+-------------------------------------------
+
+TODO: Fix substitution contents
+
+An ''@apply'' rule behaves as if the [=substitution contents=]
+of the corresponding [=mixin=]
+were present at its location,
+wrapped in a ''@nest'' rule.
+
+<div algorithm>
+	To determine the <dfn>substitution contents</dfn> of an ''@apply'' rule |rule|:
+		1. Let |mixin| be the result of dereferencing
+			|rule|'s name as a [=tree-scoped reference=].
+			If no such name exists, return an empty <<declaration-rule-list>>.
+		2. ?
+		3. Profit.
+</div>
+
+Mixin Variables and Captured Locals {#captured-locals}
+------------------------------------------------------
+
+A <dfn>mixin variable</dfn>
+is a custom property defined with the body of a [=mixin=].
+It is only visible within the [=mixin=] where it is defined.
+
+Any declaration which originates from an ''@apply'' substitution
+implicitly captures the [=mixin dependencies|dependencies=],
+[=mixin parameters|parameters=],
+and [=mixin variable=] of the associated [=mixin=].
+
+During ''var()'' [=substitute a var()|substitution=] within a [=declarations=]'s value,
+if there exists a [=captured local=] matching the specified [=custom property=],
+then ''var()'' substitution must proceed as if the [=captured local=]'s value
+was the [=computed value=] of the property.
+
+<div class=note>
+This makes a distintion between non-existence
+and the [=guaranteed-invalid value=].
+If the [=captured local=] exists,
+but is the [=guaranteed-invalid value=],
+it will invoke the fallback behavior of the ''var()'' function.
+Otherwise,
+if the [=captured local=] does not exist at all,
+the ''var()'' substitutes normally according to the computed value of the element.
+</div>
 
 <!-- Big Text: cssom
 
